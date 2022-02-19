@@ -1,2 +1,12 @@
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# PythonTemplates
+__pycache__/
+
+# Ignore datasets
+data/
+
+# Ignore .pdfs (Slides and Papers) for now
+Slides/
+Papers/
