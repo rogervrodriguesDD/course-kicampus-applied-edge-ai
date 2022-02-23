@@ -4,8 +4,8 @@
 # PythonTemplates
 __pycache__/
 
-# Ignore datasets
-data/
+# Ignore downloaded datasets
+downloaded/
 
 # Ignore .pdfs (Slides and Papers) for now
 Slides/

@@ -1,24 +1,18 @@
-import matplotlib.pyplot as plt
 from pathlib import Path
-import pickle
-import torch
-from torchvision.datasets import CIFAR100
 from torchvision.transforms import ToTensor
+import matplotlib.pyplot as plt
+import torch
 
-train_data = CIFAR100(root='data', train=True, transform=ToTensor(), target_transform=None, download=True)
-labels = pickle.load(Path('data/cifar-100-python/meta').open('rb'))
+from image_classification.data import CIFAR100, plot_dataset_sample_images
 
-print(train_data)
+# Getting the train dataset
+DOWNLOADED_DATA_DIR = Path('./image_classification/data/downloaded').resolve()
+train_data = CIFAR100(root = DOWNLOADED_DATA_DIR,
+                    train = True,
+                    transform = ToTensor(),
+                    download=True)
+
 print('Image shape (format CHW):', train_data[0][0].shape)
 
-figure = plt.figure(figsize=(8, 8))
-cols, rows = 4, 4
-for i in range(1, cols * rows + 1):
-    sample_idx = torch.randint(len(train_data), size=(1,)).item()
-    img, label = train_data[sample_idx]
-    img_t = torch.permute(img, (1, 2, 0)) # Reordering to format HWC
-    figure.add_subplot(rows, cols, i)
-    plt.title(labels['fine_label_names'][label])
-    plt.axis("off")
-    plt.imshow(img_t)
-plt.show()
+# Plotting same examples
+plot_dataset_sample_images(train_data, cols=4, rows=4)
