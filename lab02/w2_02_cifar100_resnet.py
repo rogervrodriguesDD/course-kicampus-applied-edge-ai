@@ -1,3 +1,4 @@
+import csv
 import matplotlib.pyplot as plt
 
 from collections import defaultdict
@@ -17,21 +18,20 @@ import torchvision.transforms as tt
 
 import util_scripts.cifar100_resnets as models
 
-# Just to visualize some images
-labels = pickle.load(Path('./data/cifar-100-python/meta').open('rb'))
-
-def plot_img_examples():
+def plot_img_examples(train_data, labels, train_augmentations):
     figure = plt.figure(figsize=(8, 8))
     cols, rows = 4, 4
     for i in range(1, cols * rows + 1):
         sample_idx = torch.randint(len(train_data), size=(1,)).item()
         img, label = train_data[sample_idx]
+        if train_augmentations is not None:
+            img_t = train_augmentations(img.numpy())
         img_t = torch.permute(img, (1, 2, 0)) # Reordering to format HWC
-        img_aug = train_augmentations(img_t.numpy())
         figure.add_subplot(rows, cols, i)
         plt.title(labels['fine_label_names'][label])
         plt.axis("off")
-        plt.imshow(img_aug)
+        print(img_t.shape)
+        plt.imshow(img_t)
     figure.suptitle('Dataset examples (Normalized and Augmented)')
     plt.show(block=False)
     input('> Press enter to close the figure.')
@@ -59,11 +59,12 @@ class CIFAR100Net(nn.Module):
 # Train process
 loss_function = nn.CrossEntropyLoss()
 
-def train_for_one_iteration(network: Type[nn.Module], batch: tuple, optimizer: Type[Optimizer]) -> float:
+def train_for_one_iteration(network: Type[nn.Module], train_augmentations: Type[tt.Compose],
+                            batch: tuple, optimizer: Type[Optimizer]) -> float:
 
     images, labels = batch
     if train_augmentations is not None:
-        images = train_augmentations(torch.permute(images, (0, 2, 3, 1)).numpy())
+        images = train_augmentations.augment_images(images.numpy().transpose(0, 2, 3, 1))
     outputs = network(images)
     loss = loss_function(outputs, labels)
 
@@ -73,7 +74,9 @@ def train_for_one_iteration(network: Type[nn.Module], batch: tuple, optimizer: T
 
     return float(loss.item())
 
-def train(train_data: DataLoader, test_data: DataLoader, network: Type[nn.Module], optimizer: Type[Optimizer], num_epochs: int) -> dict:
+def train(train_data: DataLoader, test_data: DataLoader,
+        train_augmentations:[tt.Compose], network: Type[nn.Module],
+        optimizer: Type[Optimizer], num_epochs: int) -> dict:
     device = get_device()
     metrics = defaultdict(list)
     for epoch in trange(num_epochs, desc="Epoch: "):
@@ -81,7 +84,7 @@ def train(train_data: DataLoader, test_data: DataLoader, network: Type[nn.Module
         with tqdm(total=len(train_data), desc="Iteration: ") as progress_bar:
             for iteration, batch in enumerate(train_data):
                 batch = to_device(batch, device)
-                loss = train_for_one_iteration(network, batch, optimizer)
+                loss = train_for_one_iteration(network, train_augmentations, batch, optimizer)
                 losses.append(loss)
                 progress_bar.update()
                 metrics["losses"].append({"iteration": epoch * len(train_data) + iteration, "value": loss})
@@ -106,7 +109,7 @@ def test_model(network: Type[nn.Module], data_loader: DataLoader) -> float:
         predictions_softmax = nn.functional.softmax(predictions, dim=1)
         _, predictions_classes = torch.max(predictions_softmax.data, dim=1)
 
-        correct_predictions = (predicted_classes == labels).sum()
+        correct_predictions = (predictions_classes == labels).sum()
 
         num_correct_predictions += correct_predictions
 
@@ -124,7 +127,7 @@ def main():
     train_data = CIFAR100(root='./data', train=True, transform=image_transformation, target_transform=None, download=True)
     test_data = CIFAR100(root='./data', train=False, transform=image_transformation, target_transform=None, download=True)
 
-    # Defining train_augmentations
+    # Defining train_augmentations wrapped with tt.Compose
     train_augmentations = tt.Compose([
         iaa.Sequential([
             iaa.Fliplr(0.5),
@@ -132,9 +135,17 @@ def main():
         ]).augment_images,
         tt.ToTensor()
     ])
-    train_augmentations = None
 
-    # plot_img_examples()
+    # Defining train_augmentations
+    train_augmentations = iaa.Sequential([
+            iaa.Fliplr(0.5),
+            iaa.CropAndPad(percent=(-0.25, 0.25))
+        ])
+    # train_augmentations = None
+
+    # Just to visualize some images
+    labels = pickle.load(Path('./data/cifar-100-python/meta').open('rb'))
+    # plot_img_examples(train_data, labels, train_augmentations)
 
     # DataLoaders objects
     train_data_loader = DataLoader(train_data, batch_size=64, shuffle=True, num_workers=4)
@@ -143,7 +154,7 @@ def main():
     # Executing the training
     # Setting hyperparameters
     learning_rate = 0.001
-    num_epochs = 50
+    num_epochs = 5
 
     # Creating the Network
     network = CIFAR100Net()
@@ -153,7 +164,12 @@ def main():
     optimizer = torch.optim.Adam(network.parameters(), lr=learning_rate)
 
     # Training
-    logged_metrics = train(train_data_loader, test_data_loader, network, optimizer, num_epochs)
+    logged_metrics = train(train_data_loader, test_data_loader, train_augmentations, network, optimizer, num_epochs)
+
+    with open('./logs/w2_logged_metrics.csv', 'w') as file:
+        writer = csv.writer(file)
+        for key, value in logged_metrics.items():
+            writer.writerow([key, value])
 
 if __name__ == '__main__':
     main()
