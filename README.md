@@ -15,3 +15,7 @@ the course.
 - [x] Week 5: Edge AI - Introduction and Federated Learning
 - [ ] Week 6: Edge AI Concepts
 - [ ] Week 7: Final Exam
+
+## 2. Laboratories
+
+- [Lab 2: CIFAR100](lab02/readme.md): Training an Image Classification Network on CIFAR-100 using PyTorch.

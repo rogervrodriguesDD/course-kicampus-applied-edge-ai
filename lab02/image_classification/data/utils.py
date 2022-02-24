@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import torch
 
-def plot_dataset_sample_images(dataset, cols, rows):
+def plot_dataset_sample_images(dataset, cols, rows, dir_fig, savefig=False):
 
     figure = plt.figure(figsize=(2*cols, 2*rows))
     for i in range(1, cols * rows + 1):
@@ -18,3 +18,15 @@ def plot_dataset_sample_images(dataset, cols, rows):
         title = title + ' (With augmentation transformation)'
     figure.suptitle(title)
     plt.show(block=True)
+
+    if savefig:
+        figure.savefig(dir_fig, format='png')
+
+def save_logged_metrics(file_path, logged_metrics):
+
+    with open(file_path, 'w') as file:
+        writer = csv.writer(file)
+        for key, value in logged_metrics.items():
+            writer.writerow([key, value])
+
+    return None

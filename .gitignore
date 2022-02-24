@@ -10,3 +10,6 @@ downloaded/
 # Ignore .pdfs (Slides and Papers) for now
 Slides/
 Papers/
+
+# Keeping empty folders
+!.gitkeep
