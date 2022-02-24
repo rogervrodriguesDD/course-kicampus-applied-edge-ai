@@ -10,7 +10,7 @@ The images have a resolution of `32x32` pixels.
 
 Here are some examples of images from CIFAR100 (created by running the script `example_cifar100_pytorch.py`).
 
-![cifar100 image](example_cifar100.png)
+![cifar100 image](image_classification/data/example_cifar100.png)
 
 To run an experiment, the command is:
 ```sh
@@ -32,8 +32,20 @@ can be found [here](https://www.kaggle.com/bartzi/cifar100-resnets).
 ### 1.2 Training process
 
 For this experiment, the following configuration was used:
-- Loss function used : `CrossEntropyLoss` from the `torch.optim` module
+- Optimizer: Adam
+- Loss function: `CrossEntropyLoss` from the `torch.optim` module
 - Learning rate: Fixed, with default value of 0.001
 - Batch size: 64
 - Number of epochs: Default value of 50
-- Metric for evaluating the model: Accuracy 
+- Metric for evaluating the model: Accuracy
+
+### 1.3 Metrics
+
+Given the default hyperparameters, the obtained metrics are plotted below.
+
+![ResNet20 CIFAR100](logs/w2_logged_metrics.png)
+
+## TODO
+
+- Add augmentation transformation to the Dataset definition.
+- Generate results for different learning rates.

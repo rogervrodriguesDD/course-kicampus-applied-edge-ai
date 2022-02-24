@@ -26,8 +26,8 @@ def _setup_parser():
     # Training parameters
     learning_rate = 0.001
     num_epochs = 50
-    parser.add_argument('--learning_rate', type=float, default=0.001)
-    parser.add_argument('--num_epochs', type=int, default=1)
+    parser.add_argument('--learning_rate', type=float, default=learning_rate)
+    parser.add_argument('--num_epochs', type=int, default=num_epochs)
 
     return parser
 
