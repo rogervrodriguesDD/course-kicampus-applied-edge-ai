@@ -7,6 +7,16 @@ import torchvision.transforms as tt
 from typing import Union, Type
 
 class CIFAR100(cifar100_dataset):
+    """
+    CIFAR 100 DataModule.
+    CIFAR100 DataModule from torchvision.datasets used as Parent Class.
+
+    If the 'transform' argument is None, the default transformation pipeline is used (convert to tensor,
+    followed by a Normalization of this tensor).
+
+    An new parameter and method is defined for getting the fine_label_names of this Dataset.
+    To get those labels, use the method `get_fine_labels_names`.    
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

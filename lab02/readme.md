@@ -45,7 +45,13 @@ Given the default hyperparameters, the obtained metrics are plotted below.
 
 ![ResNet20 CIFAR100](logs/w2_logged_metrics.png)
 
+For different learning rates, we achieve different values of accuracy on the end
+of the training process. **Obs.: The initialization also has a great influence on the accuracy of the model, and that is one of the main reasons, we see the difference on the metrics for each experiment.**
+
+
+![ResNet20 CIFAR100 Comparison](logs/w2_logged_metrics_compared.png)
+
+
 ## TODO
 
 - Add augmentation transformation to the Dataset definition.
-- Generate results for different learning rates.

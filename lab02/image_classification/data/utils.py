@@ -1,12 +1,19 @@
 import csv
 import json
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 from pathlib import Path
+from typing import Type
 import torch
 import sys
 
 def plot_dataset_sample_images(dataset, cols, rows, dir_fig, savefig=False):
+    """
+    Plot examples of images for the given dataset.
+    When the argument savefig is set to True, a new figure is saved using
+    the directory 'dir_fig'.
+    """
 
     figure = plt.figure(figsize=(2*cols, 2*rows))
     for i in range(1, cols * rows + 1):
@@ -28,6 +35,10 @@ def plot_dataset_sample_images(dataset, cols, rows, dir_fig, savefig=False):
         figure.savefig(dir_fig, format='png')
 
 def save_logged_metrics(file_path, logged_metrics):
+    """
+    Save the variable logged_metrics as csv file, using the
+    'file_path' as directory.
+    """
 
     with open(file_path, 'w') as file:
         writer = csv.writer(file)
@@ -37,6 +48,10 @@ def save_logged_metrics(file_path, logged_metrics):
     return None
 
 def load_logged_metrics(log_dir):
+    """
+    Load the file of logged metrics and return it as
+    a dictionary.
+    """
     maxInt = sys.maxsize
     while True:
         # decrease the maxInt value by factor 10
@@ -62,9 +77,16 @@ def load_logged_metrics(log_dir):
 
     return metrics
 
-def plot_metrics(metrics: dict, dir_fig: Path, label: str, axes: np.array = None, colors: iter = None,
+def plot_metrics(metrics: dict, dir_fig: Type[Path], label: str,
+                fig: Type[Figure] = None, axes: np.array = None, colors: iter = None,
                 plotfig:bool = True, savefig: bool = False):
-    fig = None
+    """
+    Plot the metrics registered in the metrics dictionary.
+    To make it possible to plot the values for different log files, it is possible to enter with the
+    'axes' and 'colors' arguments, which make possible to plot on the same graph and with different color
+    for each time the function is called.
+    The arguments 'plotfig' and 'savefig' may then be adjusted to show and / or save the figure when it is needed.
+    """
     if axes is None:
         fig, axes = plt.subplots(len(metrics), 1, sharex=True, figsize=(10, 5*len(metrics)))
     if colors is None:
@@ -77,8 +99,8 @@ def plot_metrics(metrics: dict, dir_fig: Path, label: str, axes: np.array = None
         line_plot = np.array([(item['iteration'], item['value']) for item in metrics[key]])
         axes[i].plot(line_plot[:,0], line_plot[:,1], label=label, color=color)
         axes[i].legend()
-        axes[i].grid()
         axes[i].set_title(key)
+        axes[i].grid(visible=True)
         i += 1
 
     if plotfig:

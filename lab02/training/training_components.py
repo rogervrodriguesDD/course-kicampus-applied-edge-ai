@@ -15,9 +15,32 @@ loss_function = nn.CrossEntropyLoss()
 
 # Optimizer
 def get_optimizer(network: Type[nn.Module], learning_rate: float):
+    """
+    Returns the implemented Adam optimizer with given Learning Rate.
+    The values for betas and weight decay are default.
+
+    Args:
+        network (nn.Module): Network whose weights will be optimzed.
+        learning_rate (float): Learning rate.
+
+    Returns:
+        Adam optimizer with lr=learning_rate.
+    """
     return torch.optim.Adam(network.parameters(), lr=learning_rate)
 
 def train_for_one_iteration(network: Type[nn.Module], batch: tuple, optimizer: Type[Optimizer]) -> float:
+    """
+    Run a training step.
+
+    Args:
+        network (nn.Module): Network whose weights will be optimzed.
+        batch (tuple): A batch with images and  labels to be used in the training step.
+        optimizer (torch.Optimizer): Optimizer used for the network weights update.
+
+    Returns:
+        loss (float): Loss based on the predictions and labels of the batch
+
+    """
 
     images, labels = batch
     outputs = network(images)
@@ -30,7 +53,22 @@ def train_for_one_iteration(network: Type[nn.Module], batch: tuple, optimizer: T
     return float(loss.item())
 
 def train(train_data: DataLoader, test_data: DataLoader, network: Type[nn.Module],
-        optimizer: Type[Optimizer], num_epochs: int) -> dict:
+            optimizer: Type[Optimizer], num_epochs: int) -> dict:
+    """
+    Run a training loop.
+
+    Args:
+        train_data (DataLoader): DataLoader with data for training.
+        test_date (DataLoader): DataLoader with data for testing (calculation of accuracy).
+        network (nn.Module): Network whose weights will be optimized.
+        optimizer (torch.Optimizer): Optimizer used for the network weights update.
+        num_epochs (int): Number of epochs executed during the training loop.
+
+    Returns:
+        metrics (dict): Dictionary with the metrics loss and accuracy as keys. Their values
+                        are a list of dictionaries whose items are the iteraction number and the
+                        values of respective metrics.
+    """
     device = get_device()
     metrics = defaultdict(list)
     for epoch in trange(num_epochs, desc="Epoch: "):
@@ -52,6 +90,17 @@ def train(train_data: DataLoader, test_data: DataLoader, network: Type[nn.Module
 
 # Network testing
 def test_model(network: Type[nn.Module], data_loader: DataLoader) -> float:
+    """
+    Obtain the predictions for the model, and based on them, calculate the
+    its accuracy.
+
+    Args:
+        network (nn.Module): Network used for the test.
+        data_loader (DataLoader): DataLoader with data for the test.
+
+    Returns:
+        accuracy (float): Accuracy based on predictions and labels.
+    """
     num_correct_predictions = 0
     device = get_device()
 

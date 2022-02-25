@@ -1,3 +1,5 @@
+"""Experiment-running."""
+
 import argparse
 import csv
 from pathlib import Path
@@ -13,6 +15,7 @@ from image_classification.models import RESNET20, to_device, get_device
 from training.training_components import train, get_optimizer
 
 def _setup_parser():
+    """Setup Python's ArgumentParser with learning rate, num of epochs, and files directories"""
 
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--help', '-h', action='help')
@@ -32,6 +35,14 @@ def _setup_parser():
     return parser
 
 def main():
+    """
+    Run an experiment.
+
+    Example of command
+    ```
+    python run_experiment.py --learning_rate=0.001 --num_epochs=50 --data_dir=../datasets/cifar100/downloaded --log_dir=./logs/w2_logged_metrics.csv
+    ```
+    """
 
     parser = _setup_parser()
     args = parser.parse_args()

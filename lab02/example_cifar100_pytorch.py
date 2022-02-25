@@ -1,3 +1,4 @@
+"""Download and plot example images for the CIFAR100 Dataset"""
 from pathlib import Path
 from torchvision.transforms import ToTensor
 import matplotlib.pyplot as plt
