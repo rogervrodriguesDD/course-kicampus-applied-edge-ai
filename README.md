@@ -21,3 +21,4 @@ the course.
 To practice, I converted some of the practical exercises, originally developed in Kaggle Notebooks, to small and minimally functional projects. Each project can be found on the folders named `labXX`.
 
 - [Lab 2: CIFAR100](lab02/readme.md): Training an Image Classification Network on CIFAR-100 using PyTorch.
+- [Lab 3: Knowledge Distillation](lab03/readme.md): Performing Knowledge Distillation on CIFAR-100 using PyTorch
