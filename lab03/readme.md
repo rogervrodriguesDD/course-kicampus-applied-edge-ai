@@ -42,7 +42,9 @@ simultaneously. The teacher model training process is based only on hard labels 
 is trained using both soft labels provided by the bigger one and also hard labels given by the dataset.
 
 For this experiment, the following configuration was used:
-- Loss function used : `CrossEntropyLoss` from the `torch.optim` module for the teacher model; an implementation of a loss function using **Kullback Leibler Divergence metric** for the student network.
+- Loss function used :
+  - Teacher model: `CrossEntropyLoss` from the `torch.optim` module
+  - Student model: an implementation of a loss function using **Kullback Leibler Divergence**.
 - Learning rate: Fixed, with default value of 0.001
 - Batch size: Fixed, with default value of 128
 - Number of epochs: Default value of 50

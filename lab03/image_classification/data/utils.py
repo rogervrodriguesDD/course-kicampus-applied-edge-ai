@@ -108,3 +108,50 @@ def plot_metrics(metrics: dict, dir_fig: Path, label: str, axes: np.array = None
         fig.savefig(dir_fig, format='png')
 
     return fig,  axes, colors
+
+def plot_metrics_lab03(metrics: dict, dir_fig: Path, label: str, axes: np.array = None, colors: iter = None,
+                plotfig:bool = True, savefig: bool = False):
+    """
+    Plot the metrics registered in the metrics dictionary.
+    To make it possible to plot the values for different log files, it is possible to enter with the
+    'axes' and 'colors' arguments, which make possible to plot on the same graph and with different color
+    for each time the function is called.
+    The arguments 'plotfig' and 'savefig' may then be adjusted to show and / or save the figure when it is needed.
+    """
+    fig = None
+    if axes is None:
+        fig, axes = plt.subplots(3, 1, sharex=True, figsize=(10, 5*len(metrics)))
+    if colors is None:
+        colors = iter(plt.cm.rainbow(np.linspace(0, 1, 5)))
+
+    color_teacher = next(colors)
+    color_student = next(colors)
+
+    axes_metrics = {'loss': 0, 'train_acc': 1, 'acc': 2}
+
+    i = 0
+    for key in metrics.keys():
+        label, actual_metric = key.split('_', 1)
+
+        idx_plot = axes_metrics[actual_metric]
+        if label == 'teacher':
+            linestyle = 'solid'
+            color = color_teacher
+        else:
+            linestyle = 'dashed'
+            color = color_student
+
+        line_plot = np.array([(item['iteration'], item['value']) for item in metrics[key]])
+        axes[idx_plot].plot(line_plot[:,0], line_plot[:,1], label=label, color=color, linestyle=linestyle)
+        axes[idx_plot].legend()
+        axes[idx_plot].set_title(actual_metric)
+        axes[idx_plot].grid(visible=True)
+        i += 1
+
+    if plotfig:
+        plt.show(block=True)
+
+    if savefig:
+        fig.savefig(dir_fig, format='png')
+
+    return fig,  axes, colors

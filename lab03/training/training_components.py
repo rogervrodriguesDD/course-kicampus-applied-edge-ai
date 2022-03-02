@@ -3,6 +3,7 @@ import statistics
 import torch
 import torch.nn as nn
 from torch.optim import Optimizer
+from torch.optim.lr_scheduler import _LRScheduler, OneCycleLR
 from torch.utils.data import DataLoader
 import torchvision.transforms as tt
 from tqdm import tqdm, trange
@@ -29,6 +30,22 @@ def get_optimizer(network: Type[nn.Module], learning_rate: float):
         Adam optimizer with lr=learning_rate.
     """
     return torch.optim.Adam(network.parameters(), lr=learning_rate)
+
+def get_lr_scheduler(optimizer: Type[Optimizer], learning_rate: float, epochs: int, steps_per_epoch: int):
+    """
+    Returns the LR Scheduler class OneCycleLR from PyTorch module.
+
+    Args:
+        optimizer (torch.optim.Optimizer): Optimizer.
+        learning_rate (float): Upper learning rate boundaries in the cycle for each parameter group.
+        epochs (int): Number of epochs to train for.
+        steps_per_epoch (int): Number of steps per epoch to train for.
+
+    Returns:
+        lr_scheduler: Initialized OneCycleLR class.
+    """
+    return OneCycleLR(optimizer, learning_rate, epochs=epochs, steps_per_epoch=steps_per_epoch)
+
 
 def accuracy(predictions: torch.Tensor, labels: torch.Tensor, reduce_mean: bool = True) -> torch.Tensor:
     """
@@ -95,8 +112,11 @@ def train_for_one_iteration(networks: List[Type[nn.Module]], batch: tuple, optim
         "student_train_acc": float(student_accuracy.item()),
     }
 
-def train(train_data: DataLoader, test_data: DataLoader, networks: List[Type[nn.Module]],
-            optimizers: List[Type[Optimizer]], num_epochs: int) -> dict:
+def train(train_data: DataLoader, test_data: DataLoader,
+        networks: List[Type[nn.Module]],
+        optimizers: List[Type[Optimizer]], lr_schedulers: List[Type[_LRScheduler]],
+        num_epochs: int,
+        update_lr_scheduler_each_iteration: bool = True) -> dict:
     """
     Run a training loop.
 
@@ -105,6 +125,8 @@ def train(train_data: DataLoader, test_data: DataLoader, networks: List[Type[nn.
         test_date (DataLoader): DataLoader with data for testing (calculation of accuracy).
         networks (list of nn.Module): Networks (teacher and student) whose weights will be optimized.
         optimizers (torch.Optimizer): Optimizers (teacher and student) used for the network weights update.
+        lr_schedulers (torch.optim._LRScheduler): Learning rate schedulers (teacher and student) used to update the value of the Learning Rate.
+        update_lr_scheduler_each_iteration (bool): If true, the Learning Rate will be updated for each iteration.
         num_epochs (int): Number of epochs executed during the training loop.
 
     Returns:
@@ -116,7 +138,7 @@ def train(train_data: DataLoader, test_data: DataLoader, networks: List[Type[nn.
     metrics = defaultdict(list)
 
     for epoch in trange(num_epochs, desc="Epoch: "):
-        losses = defaultdict(list) 
+        losses = defaultdict(list)
         with tqdm(total=len(train_data), desc="Iteration: ") as progress_bar:
             for iteration, batch in enumerate(train_data):
                 current_iteration = epoch * len(train_data) + iteration
@@ -129,8 +151,19 @@ def train(train_data: DataLoader, test_data: DataLoader, networks: List[Type[nn.
                     metrics[loss_name].append({"iteration": current_iteration, "value": loss_value})
 
                 postfix_data = {name: f"{value:.2f}" for name, value in calculated_losses.items()}
+
+                current_learning_rate = lr_schedulers[0].get_last_lr()[0]
+                postfix_data['teacher_lr'] = f"{current_learning_rate:.6f}"
+
+                for metric_name, lr_scheduler in zip(["teacher_lr", "student_lr"], lr_schedulers):
+                    metrics[metric_name].append({"iteration": current_iteration, "value": lr_scheduler.get_last_lr()[0]})
+
                 progress_bar.set_postfix(postfix_data)
                 progress_bar.update()
+
+                if update_lr_scheduler_each_iteration:
+                    for scheduler in lr_schedulers:
+                        scheduler.step()
 
             progress_bar.set_description_str("Testing: ")
             accuracies = {}
@@ -145,6 +178,10 @@ def train(train_data: DataLoader, test_data: DataLoader, networks: List[Type[nn.
             postfix_data.update(accuracies)
             progress_bar.set_postfix(postfix_data)
             progress_bar.update()
+
+            if not update_lr_scheduler_each_iteration:
+                for scheduler in lr_schedulers:
+                    scheduler.step()
 
     return metrics
 

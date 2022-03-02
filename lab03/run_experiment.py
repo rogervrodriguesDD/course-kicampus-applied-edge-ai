@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 
 from image_classification.data import CIFAR100, save_logged_metrics
 from image_classification.models import RESNET, to_device, get_device
-from training.training_components import train, get_optimizer
+from training.training_components import train, get_optimizer, get_lr_scheduler
 
 def _setup_parser():
     """Setup Python's ArgumentParser with learning rate, num of epochs, and files directories"""
@@ -93,13 +93,18 @@ def main():
     teacher_optimizer = get_optimizer(teacher_model, learning_rate=learning_rate)
     student_optimizer = get_optimizer(student_model, learning_rate=learning_rate)
 
+    teacher_scheduler = get_lr_scheduler(teacher_optimizer, learning_rate, num_epochs, len(train_data_loader))
+    student_scheduler = get_lr_scheduler(student_optimizer, learning_rate, num_epochs, len(train_data_loader))
+
     # Training
     logged_metrics = train(
                         train_data_loader,
                         test_data_loader,
                         [teacher_model, student_model],
                         [teacher_optimizer, student_optimizer],
-                        num_epochs)
+                        [teacher_scheduler, student_scheduler],
+                        num_epochs,
+                        True) # update_lr_scheduler_each_iteration
 
     LOGS_DIR = Path(args.log_dir).resolve()
     save_logged_metrics(LOGS_DIR, logged_metrics)
