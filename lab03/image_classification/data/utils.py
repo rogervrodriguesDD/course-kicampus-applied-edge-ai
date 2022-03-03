@@ -1,8 +1,10 @@
 import csv
 import json
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 from pathlib import Path
+from typing import Type
 import torch
 import sys
 
@@ -109,8 +111,10 @@ def plot_metrics(metrics: dict, dir_fig: Path, label: str, axes: np.array = None
 
     return fig,  axes, colors
 
-def plot_metrics_lab03(metrics: dict, dir_fig: Path, label: str, axes: np.array = None, colors: iter = None,
-                plotfig:bool = True, savefig: bool = False):
+def plot_metrics_lab03(metrics: dict, dir_fig: Type[Path], label: str,
+                    fig: Type[Figure] = None, axes: np.array = None,
+                    colors: iter = None,
+                    plotfig:bool = True, savefig: bool = False):
     """
     Plot the metrics registered in the metrics dictionary.
     To make it possible to plot the values for different log files, it is possible to enter with the
@@ -118,23 +122,22 @@ def plot_metrics_lab03(metrics: dict, dir_fig: Path, label: str, axes: np.array 
     for each time the function is called.
     The arguments 'plotfig' and 'savefig' may then be adjusted to show and / or save the figure when it is needed.
     """
-    fig = None
     if axes is None:
-        fig, axes = plt.subplots(3, 1, sharex=True, figsize=(10, 5*len(metrics)))
+        fig, axes = plt.subplots(4, 1, sharex=True, figsize=(9, 30))
     if colors is None:
-        colors = iter(plt.cm.rainbow(np.linspace(0, 1, 5)))
+        colors = iter(plt.cm.tab20(np.linspace(0, 1, 10)))
 
     color_teacher = next(colors)
     color_student = next(colors)
 
-    axes_metrics = {'loss': 0, 'train_acc': 1, 'acc': 2}
+    axes_metrics = {'loss': 0, 'train_acc': 1, 'acc': 2, 'lr': 3}
 
     i = 0
     for key in metrics.keys():
-        label, actual_metric = key.split('_', 1)
+        label_metric, actual_metric = key.split('_', 1)
 
         idx_plot = axes_metrics[actual_metric]
-        if label == 'teacher':
+        if label_metric == 'teacher':
             linestyle = 'solid'
             color = color_teacher
         else:
@@ -142,14 +145,17 @@ def plot_metrics_lab03(metrics: dict, dir_fig: Path, label: str, axes: np.array 
             color = color_student
 
         line_plot = np.array([(item['iteration'], item['value']) for item in metrics[key]])
-        axes[idx_plot].plot(line_plot[:,0], line_plot[:,1], label=label, color=color, linestyle=linestyle)
-        axes[idx_plot].legend()
+        axes[idx_plot].plot(line_plot[:,0], line_plot[:,1], label="{} ({})".format(label, label_metric), color=color, linestyle=linestyle, alpha=0.7)
+        axes[idx_plot].legend(bbox_to_anchor=(1, 1))
         axes[idx_plot].set_title(actual_metric)
         axes[idx_plot].grid(visible=True)
         i += 1
 
     if plotfig:
-        plt.show(block=True)
+        plt.tight_layout(rect=[0,0.05,1.0,0.95], h_pad=5)
+        plt.show(block=False)
+        user_input = input('> Press enter to close the figure')
+        plt.close()
 
     if savefig:
         fig.savefig(dir_fig, format='png')

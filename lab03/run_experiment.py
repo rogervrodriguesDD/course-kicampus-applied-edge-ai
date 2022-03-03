@@ -44,6 +44,9 @@ def _setup_parser():
     parser.add_argument('--student_model_class', type=str, default=student_model_class)
     parser.add_argument('--student_model_temperature', type=str, default=student_model_temperature)
 
+    # Update lr_scheduler for each iteration
+    parser.add_argument('--update_lr_sch_each_iter', type=bool, default=True)
+
     return parser
 
 def main():

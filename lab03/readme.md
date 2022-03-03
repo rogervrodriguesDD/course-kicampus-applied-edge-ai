@@ -49,3 +49,14 @@ For this experiment, the following configuration was used:
 - Batch size: Fixed, with default value of 128
 - Number of epochs: Default value of 50
 - Metric for evaluating the model: Accuracy for both models
+
+## 2. Metrics of the training process for some experiments
+
+Below we see the metrics for some experiments. It's clear that we have **overfitting** here. The reason for this
+is to be investigated.
+
+![Lab03 metrics](logs/w3_logged_metrics_compared.png)
+
+## TODO
+
+- [ ] Check why the model is overfitting 
