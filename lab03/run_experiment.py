@@ -107,7 +107,7 @@ def main():
                         [teacher_optimizer, student_optimizer],
                         [teacher_scheduler, student_scheduler],
                         num_epochs,
-                        True) # update_lr_scheduler_each_iteration
+                        args.update_lr_sch_each_iter) # update_lr_scheduler_each_iteration
 
     LOGS_DIR = Path(args.log_dir).resolve()
     save_logged_metrics(LOGS_DIR, logged_metrics)
