@@ -50,8 +50,3 @@ of the training process. **Obs.: The initialization also has a great influence o
 
 
 ![ResNet20 CIFAR100 Comparison](logs/w2_logged_metrics_compared.png)
-
-
-## TODO
-
-- Add augmentation transformation to the Dataset definition.

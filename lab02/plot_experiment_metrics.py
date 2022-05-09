@@ -4,8 +4,10 @@ from pathlib import Path
 from image_classification.data import load_logged_metrics, plot_metrics
 
 logs_list = [
-    ('ResNet20 (Adam, lr=0.001)', './logs/w2_logged_metrics.csv'),
-    ('ResNet20 (Adam, lr=0.05)', './logs/w2_logged_metrics_lr005.csv'),
+    # ('ResNet20 (Adam, lr=0.001)', './logs/w2_logged_metrics.csv'),
+    ('ResNet20 (Adam, lr=0.001)', './logs/w2_logged_metrics_lr0001_augmented.csv'),
+    # ('ResNet20 (Adam, lr=0.05)', './logs/w2_logged_metrics_lr005.csv'),
+    ('ResNet20 (Adam, lr=0.05)', './logs/w2_logged_metrics_lr005_augmented.csv'),
     # ('ResNet20 (Adam, lr=0.5)', './logs/w2_logged_metrics_lr05.csv'),
 ]
 
