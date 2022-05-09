@@ -4,11 +4,7 @@ from pathlib import Path
 from image_classification.data import load_logged_metrics, plot_metrics_lab03
 
 logs_list = [
-    # ('Fixed lr=0.001', './logs/w3_logged_metrics_fixed_lr0001.csv'),
-    # ('Fixed lr=0.001 (second exp.)', './logs/w3_logged_metrics_fixed_lr0001_exp2.csv'),
     ('Scheduled lr', './logs/w3_logged_metrics.csv'),
-    ('Scheduled lr (Update=False)', './logs/w3_logged_metrics_lr_update_false.csv'),
-
 ]
 
 fig, axes, colors = None, None, None

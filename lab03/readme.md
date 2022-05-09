@@ -52,11 +52,8 @@ For this experiment, the following configuration was used:
 
 ## 2. Metrics of the training process for some experiments
 
-Below we see the metrics for some experiments. It's clear that we have **overfitting** here. The reason for this
-is to be investigated.
+Below we see the metrics for some experiments. It is interesting to observe that the student model has near performance to the teacher, although the difference in the model capability.
+
+One may also observe how different are the loss curves for the two models. It is due to the fact that the loss functions are define differently, so compare the values between them is not appropriate. 
 
 ![Lab03 metrics](logs/w3_logged_metrics_compared.png)
-
-## TODO
-
-- [ ] Check why the model is overfitting 
